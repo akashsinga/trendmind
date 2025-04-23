@@ -1,0 +1,38 @@
+# create_features.py
+import pandas as pd
+
+def create_features(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty:
+        return pd.DataFrame()
+
+    df = df.copy()
+    df.sort_values(by=["symbol", "date"], inplace=True)
+
+    # Price change features
+    df["price_change_t-1"] = df.groupby("symbol")["close_price"].pct_change()
+    df["close_t-1"] = df.groupby("symbol")["close_price"].shift(1)
+    df["close_t-2"] = df.groupby("symbol")["close_price"].shift(2)
+    df["sma_5"] = df.groupby("symbol")["close_price"].transform(lambda x: x.rolling(5).mean())
+
+    # Volume features
+    df["volume_t-1"] = df.groupby("symbol")["ttl_trd_qnty"].shift(1)
+    df["volume_3d_avg"] = df.groupby("symbol")["ttl_trd_qnty"].transform(lambda x: x.rolling(3).mean())
+    df["volume_spike_ratio"] = df["ttl_trd_qnty"] / df["volume_3d_avg"]
+
+    # Range compression features
+    df["hl_range"] = df["high_price"] - df["low_price"]
+    df["range_3d_avg"] = df.groupby("symbol")["hl_range"].transform(lambda x: x.rolling(3).mean())
+    df["range_compression_ratio"] = df["hl_range"] / df["range_3d_avg"]
+
+    # Higher low flag
+    df["low_t-1"] = df.groupby("symbol")["low_price"].shift(1)
+    df["higher_low_flag"] = (df["low_price"] > df["low_t-1"]).astype(int)
+
+    # Target variable
+    df["next_close"] = df.groupby("symbol")["close_price"].shift(-1)
+    df["target"] = (df["next_close"] > df["close_price"]).astype(int)
+
+    df.drop(columns=["next_close"], inplace=True)
+    df.dropna(inplace=True)
+
+    return df
