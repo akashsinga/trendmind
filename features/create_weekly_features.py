@@ -25,7 +25,13 @@ def create_weekly_features(df: pd.DataFrame) -> pd.DataFrame:
     df["range_3w_avg"] = df.groupby("symbol")["hl_range"].transform(lambda x: x.rolling(3).mean())
     df["range_compression_ratio"] = df["hl_range"] / df["range_3w_avg"]
 
-    # Target: will next week's close be higher than this week's?
+    # Phase 2 features
+    df["atr_5"] = df.groupby("symbol")["hl_range"].transform(lambda x: x.rolling(5).mean())
+    df["gap_pct"] = df["open_price"] / df.groupby("symbol")["close_price"].shift(1) - 1
+    df["body_to_range_ratio"] = (df["close_price"] - df["open_price"]).abs() / df["hl_range"]
+
+
+    # # Target: next week's close higher?
     df["next_close"] = df.groupby("symbol")["close_price"].shift(-1)
     df["target"] = (df["next_close"] > df["close_price"]).astype(int)
 
