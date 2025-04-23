@@ -5,22 +5,19 @@ from utils.load_bhavcopy import load_bhavcopy
 from datetime import datetime
 
 def load_multiple_bhavcopies(data_dir, days=None):
-    files = sorted(f for f in os.listdir(data_dir) if f.endswith(".csv"))
+    files = sorted(
+        [f for f in os.listdir(data_dir) if f.endswith(".csv")],
+        key=lambda x: pd.to_datetime(x.replace(".csv", ""), format="%d%m%Y")
+    )
     if days:
         files = files[-days:]  # Pick last N files
 
-    print(f"[INFO] Using {len(files)} bhavcopy files:")
-    for f in files:
-        try:
-            date_str = f.replace(".csv", "")
-            date_obj = datetime.strptime(date_str, "%d%m%Y")
-            if date_obj.weekday() >= 5:
-                print(f"[WARNING] {f} falls on a weekend — skipping.")
-        except ValueError:
-            print(f"[WARNING] Could not parse date from filename: {f}")
+    print(f"[INFO] Loading {len(files)} bhavcopy files (sorted by date):")
 
     data_frames = []
     for file in files:
+        parsed_date = pd.to_datetime(file.replace(".csv", ""), format="%d%m%Y").strftime("%Y-%m-%d")
+        print(f" - {file} → {parsed_date}")
         path = os.path.join(data_dir, file)
         df = load_bhavcopy(path)
         df["date"] = file.replace(".csv", "")
@@ -28,9 +25,5 @@ def load_multiple_bhavcopies(data_dir, days=None):
 
     combined = pd.concat(data_frames, ignore_index=True)
 
-    # Keep only symbols that appear on all selected days
-    symbol_counts = combined['symbol'].value_counts()
-    valid_symbols = symbol_counts[symbol_counts == len(files)].index.tolist()
-    combined = combined[combined['symbol'].isin(valid_symbols)]
-
+    # Removed strict filtering of symbols appearing in all days
     return combined

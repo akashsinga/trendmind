@@ -14,7 +14,10 @@ CONFIDENCE_BUCKETS = [(0.9, 1.0), (0.7, 0.9), (0.5, 0.7)]
 
 
 def load_all_bhavcopies(data_dir):
-    files = sorted(f for f in os.listdir(data_dir) if f.endswith(".csv"))
+    files = sorted(
+    (f for f in os.listdir(data_dir) if f.endswith(".csv")),
+    key=lambda x: pd.to_datetime(x.replace(".csv", ""), format="%d%m%Y")
+    )
     if len(files) < 1:
         raise ValueError("Need at least one bhavcopy file to make a prediction.")
 

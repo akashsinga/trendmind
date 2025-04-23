@@ -1,4 +1,4 @@
-# create_features.py
+# features/create_features.py
 import pandas as pd
 
 def create_features(df: pd.DataFrame) -> pd.DataFrame:
@@ -6,7 +6,13 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = df.copy()
+    df["date"] = pd.to_datetime(df["date"], format="%d%m%Y")
     df.sort_values(by=["symbol", "date"], inplace=True)
+
+    # Only retain symbols that are present on the latest date
+    latest_day = df["date"].max()
+    valid_symbols = df[df["date"] == latest_day]["symbol"].unique()
+    df = df[df["symbol"].isin(valid_symbols)]
 
     # Price change features
     df["price_change_t-1"] = df.groupby("symbol")["close_price"].pct_change()
@@ -29,6 +35,7 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df["target"] = (df["next_close"] > df["close_price"]).astype(int)
 
     df.drop(columns=["next_close"], inplace=True)
-    df.dropna(inplace=True)
+    df.dropna(subset=["target"], inplace=True)
 
+    df["date"] = df["date"].dt.strftime("%d%m%Y")
     return df
