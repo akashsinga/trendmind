@@ -5,12 +5,13 @@ __pycache__/
 
 # Model artifacts
 *.pkl
+*.csv
 models/
 
 # Processed datasets
 data/processed_data.csv
-data/backtest_results.csv
 prediction_results.csv
+backtest_results.csv
 
 # IDE configs
 .vscode/

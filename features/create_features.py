@@ -24,10 +24,6 @@ def create_features(df: pd.DataFrame) -> pd.DataFrame:
     df["range_3d_avg"] = df.groupby("symbol")["hl_range"].transform(lambda x: x.rolling(3).mean())
     df["range_compression_ratio"] = df["hl_range"] / df["range_3d_avg"]
 
-    # Higher low flag
-    df["low_t-1"] = df.groupby("symbol")["low_price"].shift(1)
-    df["higher_low_flag"] = (df["low_price"] > df["low_t-1"]).astype(int)
-
     # Target variable
     df["next_close"] = df.groupby("symbol")["close_price"].shift(-1)
     df["target"] = (df["next_close"] > df["close_price"]).astype(int)
