@@ -9,13 +9,14 @@ MODEL_PATH = "models/weekly_model.pkl"
 DATA_PATH = "data/weekly_processed.csv"
 OUTPUT_FILE = "weekly_prediction_results.csv"
 JOURNAL_DIR = "logs"
+CONFIDENCE_THRESHOLD = 0.7
 CONFIDENCE_BUCKETS = [(0.9, 1.0), (0.7, 0.9), (0.5, 0.7)]
 
 
 def get_latest_week(df):
-    df["week_dt"] = pd.to_datetime(df["week"])  # handles "2025-01-27" correctly
+    df["week_dt"] = pd.to_datetime(df["week"])  # handles YYYY-MM-DD
     latest = df["week_dt"].max()
-    return latest.strftime("%Y-%m-%d")  # match format in CSV
+    return latest.strftime("%Y-%m-%d")
 
 
 def predict_weekly():
@@ -34,37 +35,10 @@ def predict_weekly():
         return
 
     latest_week = get_latest_week(df)
-
-    # 🔧 FIX: Remove helper column before filtering
     df.drop(columns=["week_dt"], inplace=True, errors="ignore")
 
-    latest_df = df[df["week"] == latest_week]
+    latest_df = df[df["week"] == latest_week].copy()
 
-    if latest_df.empty:
-        print(f"[WARNING] No data found for latest week: {latest_week}")
-        return
-
-    X = latest_df.drop(columns=["symbol", "week", "target"])
-    model = joblib.load(MODEL_PATH)
-
-    print(f"[INFO] Making predictions for next week based on week: {latest_week}")
-    probas = model.predict_proba(X)
-    predictions = model.predict(X)
-    confidence = probas[:, 1]
-
-    latest_df["prediction"] = predictions
-    latest_df["confidence"] = confidence
-
-    pred_df = latest_df[latest_df["prediction"] == 1].copy()
-    if pred_df.empty:
-        print(f"[INFO] No bullish predictions for week starting {latest_week}.")
-        return
-
-    pred_df = pred_df[["symbol", "week", "close_price", "confidence"]]
-    pred_df.rename(columns={"close_price": "last_week_close"}, inplace=True)
-    pred_df.sort_values(by="confidence", ascending=False, inplace=True)
-
-    # Predicting for the *next* week
     try:
         predicted_week = (
             datetime.strptime(latest_week, "%Y-%m-%d") + timedelta(days=7)
@@ -72,11 +46,40 @@ def predict_weekly():
     except ValueError:
         predicted_week = "NextWeek"
 
+    if latest_df.empty:
+        print(f"[INFO] No data found for week: {latest_week}")
+        return
+
+    X = latest_df.drop(columns=["symbol", "week", "target"])
+    model = joblib.load(MODEL_PATH)
+
+    print(f"[INFO] Making predictions for week: {predicted_week} (based on {latest_week})")
+    probas = model.predict_proba(X)
+    predictions = model.predict(X)
+    confidence = probas[:, 1]
+
+    latest_df["prediction"] = predictions
+    latest_df["confidence"] = confidence
+
+    pred_df = latest_df[
+        (latest_df["prediction"] == 1) &
+        (latest_df["confidence"] >= CONFIDENCE_THRESHOLD)
+    ].copy()
+
+    if pred_df.empty:
+        print(f"[INFO] No strong bullish predictions for {predicted_week} (based on {latest_week}).")
+        return
+
+    pred_df = pred_df[["symbol", "week", "close_price", "confidence"]]
+    pred_df.rename(columns={"close_price": "last_week_close"}, inplace=True)
+    pred_df.sort_values(by="confidence", ascending=False, inplace=True)
+
     print(f"\n[WEEKLY PREDICTION for {predicted_week} (based on {latest_week})]")
     print(pred_df)
 
     print("\n[SUMMARY]")
-    print("Likely bullish stocks for next week:", ", ".join(pred_df["symbol"]))
+    top_5 = pred_df.head(5)["symbol"].tolist()
+    print(f"Top 5 bullish candidates: {', '.join(top_5)}")
 
     print("\n[CONFIDENCE ZONES]")
     for low, high in CONFIDENCE_BUCKETS:
@@ -84,14 +87,14 @@ def predict_weekly():
         if not bucket.empty:
             print(f"{low:.1f}–{high:.1f}: {', '.join(bucket['symbol'])}")
 
-    # Save predictions
+    # Save outputs
     pred_df.to_csv(OUTPUT_FILE, index=False)
     print(f"[INFO] Weekly prediction results saved to {OUTPUT_FILE}")
 
     os.makedirs(JOURNAL_DIR, exist_ok=True)
     journal_path = os.path.join(JOURNAL_DIR, f"weekly_predictions_{predicted_week}.csv")
     pred_df.to_csv(journal_path, index=False)
-    print(f"[INFO] Journal saved to {journal_path}")
+    print(f"[INFO] Weekly journal saved to {journal_path}")
 
 
 if __name__ == "__main__":
