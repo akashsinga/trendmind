@@ -57,7 +57,7 @@ TrendMind is a machine learning pipeline designed to predict high-confidence bul
 ## ✅ Usage
 
 ### 1. Drop Bhavcopies
-Save daily bhavcopies in the `data/bhavcopies/` folder. File names should follow this format:
+Save daily bhavcopies in the `data/bhavcopies/` folder. File names should follow this format: `DDMMYYYY.csv`
 
 
 ---
