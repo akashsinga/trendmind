@@ -10,7 +10,7 @@ from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
 from core.utils.aggregate_weekly import aggregate_weekly_data
 from core.features.weekly_feature_engineer import create_weekly_features
 
-def run_weekly_prediction():
+def run_weekly_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
     if not os.path.exists(WEEKLY_MODEL_PATH):
         print("[ERROR] Trained weekly model not found.")
         return
@@ -37,7 +37,7 @@ def run_weekly_prediction():
 
     pred_df = features[
         (features["prediction"] == 1) &
-        (features["confidence"] >= CONFIDENCE_THRESHOLD)
+        (features["confidence"] >= prediction_threshold)
     ].copy()
 
     if pred_df.empty:

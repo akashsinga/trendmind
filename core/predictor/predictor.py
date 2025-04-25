@@ -9,7 +9,7 @@ from core.config import (DATA_DIR, DAILY_MODEL_PATH,DAILY_OUTPUT_PATH, DAILY_LAT
 from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
 from core.features.feature_engineer import create_features
 
-def run_daily_prediction():
+def run_daily_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
     today = datetime.now()
     if today.weekday() >= 5:
         print("[INFO] Weekend detected. No prediction will be made.")
@@ -41,7 +41,7 @@ def run_daily_prediction():
     # Filter by confidence and prediction
     pred_df = features[
         (features["prediction"] == 1) &
-        (features["confidence"] >= CONFIDENCE_THRESHOLD)
+        (features["confidence"] >= prediction_threshold)
     ].copy()
 
     if pred_df.empty:
