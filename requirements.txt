@@ -5,3 +5,5 @@ joblib>=1.1.0  # For saving/loading models
 matplotlib     # For visualizing results (optional)
 xgboost        # If you want to experiment with XGBoost later
 plotly
+requests
+beautifulsoup4
