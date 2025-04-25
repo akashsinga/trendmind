@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import joblib
 
-from core.config import (DATA_DIR, DAILY_MODEL_PATH,DAILY_OUTPUT_PATH, DAILY_LATEST_PATH,CONFIDENCE_THRESHOLD, CONFIDENCE_BUCKETS)
+from core.config import (DATA_DIR, DAILY_MODEL_PATH,DAILY_PREDICTIONS_DIR, DAILY_PREDICTIONS_LATEST_PATH,CONFIDENCE_THRESHOLD, CONFIDENCE_BUCKETS)
 from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
 from core.features.feature_engineer import create_features
 
@@ -48,7 +48,7 @@ def run_daily_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
         print(f"[INFO] No strong bullish predictions for {predicted_date} (based on {latest_date}).")
         return
 
-    pred_df = pred_df[["symbol", "date", "close", "confidence"]]
+    pred_df = pred_df[["symbol", "date", "close","prediction","confidence"]]
     pred_df.rename(columns={"close": "last_close_price"}, inplace=True)
     pred_df.sort_values(by="confidence", ascending=False, inplace=True)
 
@@ -66,12 +66,15 @@ def run_daily_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
         symbols = bucket_df["symbol"].tolist()
         if symbols:
             print(f"{low:.1f}–{high:.1f}: {', '.join(symbols)}")
-
+            
+    
+    dated_path = os.path.join(DAILY_PREDICTIONS_DIR, f"{predicted_date}.csv")
+    
     # 💾 Save to outputs/daily/
-    os.makedirs(os.path.dirname(DAILY_OUTPUT_PATH), exist_ok=True)
-    pred_df.to_csv(DAILY_OUTPUT_PATH, index=False)
-    pred_df.to_csv(DAILY_LATEST_PATH, index=False)
-    print(f"[INFO] Predictions saved to {DAILY_OUTPUT_PATH} and {DAILY_LATEST_PATH}")
+    os.makedirs(os.path.dirname(dated_path), exist_ok=True)
+    pred_df.to_csv(dated_path, index=False)
+    pred_df.to_csv(DAILY_PREDICTIONS_LATEST_PATH, index=False)
+    print(f"[INFO] Predictions saved to {dated_path} and {DAILY_PREDICTIONS_LATEST_PATH}")
 
 if __name__ == "__main__":
     run_daily_prediction()

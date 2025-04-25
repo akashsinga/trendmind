@@ -12,7 +12,7 @@ PROCESSED_PATH = "data/processed_data.csv"
 def run_daily_training():
     df = load_multiple_bhavcopies(DATA_DIR)
     print(f"[INFO] Loaded {len(df)} rows of raw bhavcopy data")
-
+    
     features = create_features(df, predict_mode=False)
     print(f"[INFO] Processed dataset has {len(features)} rows")
 

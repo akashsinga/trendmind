@@ -10,7 +10,7 @@ def load_bhavcopy(file_path):
     if 'series' in df.columns:
         df = df[df['series'].str.strip() == 'EQ']
 
-    required = ['symbol', 'open_price', 'high_price', 'low_price', 'close_price', 'ttl_trd_qnty']
+    required = ['symbol', 'open_price', 'high_price', 'low_price', 'close_price', 'ttl_trd_qnty','deliv_qty']
     missing = set(required) - set(df.columns)
     if missing:
         raise ValueError(f"Missing columns in bhavcopy: {missing}")
@@ -23,7 +23,8 @@ def load_bhavcopy(file_path):
         'high_price': 'high',
         'low_price': 'low',
         'close_price': 'close',
-        'ttl_trd_qnty': 'volume'
+        'ttl_trd_qnty': 'volume',
+        'deliv_qty': 'deliverable_qty'
     }
     df.rename(columns=rename_map, inplace=True)
 

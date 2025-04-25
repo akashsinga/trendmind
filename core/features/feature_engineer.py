@@ -25,6 +25,8 @@ def create_features(df: pd.DataFrame, predict_mode: bool = False) -> pd.DataFram
     df["volume_t-1"] = df.groupby("symbol")["volume"].shift(1)
     df["volume_3d_avg"] = df.groupby("symbol")["volume"].transform(lambda x: x.rolling(3).mean())
     df["volume_spike_ratio"] = df["volume"] / df["volume_3d_avg"]
+    df["deliverable_qty"] = pd.to_numeric(df["deliverable_qty"], errors="coerce")
+    df['deliv_ratio'] =  df['deliverable_qty'] / df['volume']
 
     # Range compression
     df["hl_range"] = df["high"] - df["low"]

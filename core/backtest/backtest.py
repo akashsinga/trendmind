@@ -21,7 +21,10 @@ def run_daily_backtest():
     print(f"[INFO] Using predictions from {latest_pred_file}")
     pred_df = pd.read_csv(os.path.join(DAILY_PREDICTIONS_DIR, latest_pred_file))
 
-    bhavcopy_path = os.path.join(DATA_DIR, f"{prediction_date.replace('-', '')}.csv")
+    day, month, year = prediction_date.split("-")[2], prediction_date.split("-")[1], prediction_date.split("-")[0]
+    bhavcopy_filename = f"{day}{month}{year}.csv"
+    bhavcopy_path = os.path.join(DATA_DIR, bhavcopy_filename)
+    
     if not os.path.exists(bhavcopy_path):
         print(f"[ERROR] Bhavcopy not found for predicted day: {prediction_date}")
         return

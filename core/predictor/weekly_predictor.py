@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import joblib
 
-from core.config import (DATA_DIR, WEEKLY_MODEL_PATH,WEEKLY_OUTPUT_PATH, WEEKLY_LATEST_PATH,CONFIDENCE_THRESHOLD, CONFIDENCE_BUCKETS)
+from core.config import (DATA_DIR, WEEKLY_MODEL_PATH,WEEKLY_PREDICTIONS_DIR, WEEKLY_PREDICTIONS_LATEST_PATH,CONFIDENCE_THRESHOLD, CONFIDENCE_BUCKETS)
 from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
 from core.utils.aggregate_weekly import aggregate_weekly_data
 from core.features.weekly_feature_engineer import create_weekly_features
@@ -61,11 +61,13 @@ def run_weekly_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
         symbols = bucket_df["symbol"].tolist()
         if symbols:
             print(f"{low:.1f}–{high:.1f}: {', '.join(symbols)}")
-
-    os.makedirs(os.path.dirname(WEEKLY_OUTPUT_PATH), exist_ok=True)
-    pred_df.to_csv(WEEKLY_OUTPUT_PATH, index=False)
-    pred_df.to_csv(WEEKLY_LATEST_PATH, index=False)
-    print(f"[INFO] Weekly predictions saved to {WEEKLY_OUTPUT_PATH} and {WEEKLY_LATEST_PATH}")
+            
+    dated_path = os.path.join(WEEKLY_PREDICTIONS_DIR, f"{predicted_date}.csv")
+    
+    os.makedirs(os.path.dirname(dated_path), exist_ok=True)
+    pred_df.to_csv(dated_path, index=False)
+    pred_df.to_csv(WEEKLY_PREDICTIONS_LATEST_PATH, index=False)
+    print(f"[INFO] Weekly predictions saved to {dated_path} and {WEEKLY_PREDICTIONS_LATEST_PATH}")
 
 if __name__ == "__main__":
     run_weekly_prediction()
