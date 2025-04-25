@@ -7,6 +7,7 @@ import joblib
 
 from core.config import (DATA_DIR, DAILY_MODEL_PATH,DAILY_PREDICTIONS_DIR, DAILY_PREDICTIONS_LATEST_PATH,CONFIDENCE_THRESHOLD, CONFIDENCE_BUCKETS)
 from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
+from core.utils.dates import get_next_trading_day
 from core.features.feature_engineer import create_features
 
 def run_daily_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
@@ -36,7 +37,7 @@ def run_daily_prediction(prediction_threshold = CONFIDENCE_THRESHOLD):
     features["confidence"] = confidences
 
     latest_date = features["date"].iloc[0]
-    predicted_date = (datetime.strptime(latest_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%d%m%Y")
+    predicted_date = get_next_trading_day(latest_date)
 
     # Filter by confidence and prediction
     pred_df = features[
