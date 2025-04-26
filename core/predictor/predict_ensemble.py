@@ -1,14 +1,9 @@
 import os
 import pandas as pd
 import joblib
-from core.config import (
-    CONFIDENCE_THRESHOLD,
-    CONFIDENCE_BUCKETS,
-    DAILY_PREDICTIONS_DIR,
-    DAILY_PREDICTIONS_LATEST_PATH,
-    MODEL_DIR
-)
+from core.config import (CONFIDENCE_THRESHOLD,DAILY_PREDICTIONS_DIR,DAILY_PREDICTIONS_LATEST_PATH,MODEL_DIR)
 from core.utils.dates import get_next_trading_day
+from core.utils.top_signals import print_top_signals
 
 ENSEMBLE_MODEL_PATH = os.path.join(MODEL_DIR, "ensemble_model.pkl")
 PROCESSED_DATA_PATH = "data/processed_data.csv"
@@ -53,11 +48,7 @@ def run_ensemble_prediction(prediction_threshold=CONFIDENCE_THRESHOLD):
     final_pred_df.to_csv(dated_path, index=False)
     final_pred_df.to_csv(DAILY_PREDICTIONS_LATEST_PATH, index=False)
 
-    print("\n[SUMMARY]")
-    print(f"Bullish Predictions: {final_pred_df[final_pred_df['prediction'] == 'bullish'].shape[0]}")
-    print(f"Bearish Predictions: {final_pred_df[final_pred_df['prediction'] == 'bearish'].shape[0]}")
-
-
+    print_top_signals(final_pred_df)
 
     print(f"\n[PREDICTION RESULTS for {predicted_date} (based on {latest_date})]")
     print(final_pred_df)

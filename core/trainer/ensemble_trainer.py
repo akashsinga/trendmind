@@ -9,8 +9,9 @@ from sklearn.linear_model import LogisticRegression
 from lightgbm import LGBMClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from core.config import DAILY_PROCESSED_PATH, TARGET_COLUMN, MODEL_DIR
+from core.config import DAILY_PROCESSED_PATH, DATA_DIR, TARGET_COLUMN, MODEL_DIR
 from core.features.feature_engineer import create_features
+from core.utils.load_multiple_bhavcopies import load_multiple_bhavcopies
 
 # Paths
 MODEL_PATH = os.path.join(MODEL_DIR, "ensemble_model.pkl")
@@ -18,10 +19,18 @@ IMPORTANCE_CSV = "outputs/ensemble_feature_importance.csv"
 
 def run_ensemble_training():
     print("[INFO] Loading data...")
-    df = pd.read_csv(DAILY_PROCESSED_PATH)
+    df = load_multiple_bhavcopies(DATA_DIR)
+    print(f"[INFO] Loaded {len(df)} rows of raw bhavcopy data")
 
     print("[INFO] Creating features...")
-    df = create_features(df, predict_mode=False)
+    features = create_features(df, predict_mode=False)
+    print(f"[INFO] Processed dataset has {len(features)} rows")
+    
+    os.makedirs(os.path.dirname(DAILY_PROCESSED_PATH), exist_ok=True)
+    features.to_csv(DAILY_PROCESSED_PATH, index=False)
+    print(f"[INFO] Saved processed data to {DAILY_PROCESSED_PATH}")
+    
+    df = features
 
     if df.empty:
         print("[ERROR] Feature generation failed. No data to train on.")
