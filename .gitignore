@@ -1,36 +1,53 @@
-# Byte-compiled / optimized / DLL files
+# ============================
+# Python artifacts
+# ============================
 __pycache__/
 *.py[cod]
 *$py.class
 
+# ============================
 # Model artifacts
+# ============================
+models/
 *.pkl
 *.csv
-models/
 
-# Processed datasets
+# ============================
+# Data files (processed and outputs)
+# ============================
 data/processed_data.csv
+outputs/
 prediction_results.csv
 backtest_results.csv
 
-# IDE configs
-.vscode/
-.idea/
-
+# ============================
 # Environment files
+# ============================
 .env
 *.env
 .env.local
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+# ============================
+# IDE settings
+# ============================
+.vscode/
+.idea/
 
+# ============================
 # Virtual environments
+# ============================
 venv/
 .venv/
 env/
 ENV/
 
-# OS/Editor cruft
+# ============================
+# Jupyter Notebook
+# ============================
+.ipynb_checkpoints/
+
+# ============================
+# OS generated files
+# ============================
 .DS_Store
 Thumbs.db
