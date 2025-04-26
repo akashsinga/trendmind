@@ -1,7 +1,7 @@
 # api/db/backtest_model.py
 
 from sqlalchemy import Column, Integer, String, Float, Date, Boolean
-from api.db.database import Base
+from api.db.base_class import Base
 
 class BacktestResult(Base):
     __tablename__ = "backtest_results"

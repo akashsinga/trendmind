@@ -1,7 +1,7 @@
 # api/db/bhavcopy_model.py
 
 from sqlalchemy import Column, Integer, String, Float, Date
-from api.db.database import Base
+from api.db.base_class import Base
 
 class Bhavcopy(Base):
     __tablename__ = "bhavcopies"
