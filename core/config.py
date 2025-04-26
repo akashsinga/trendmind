@@ -4,9 +4,11 @@ from datetime import datetime
 
 # === Data Source ===
 DATA_DIR = "data/bhavcopies"
+MODEL_DIR = "models"
+TARGET_COLUMN = "target"
 
 # === Daily Paths ===
-DAILY_MODEL_PATH = "models/random_forest_model.pkl"
+DAILY_MODEL_PATH = f"{MODEL_DIR}/random_forest_model.pkl"
 DAILY_OUTPUT_DIR = "outputs/daily"
 DAILY_PREDICTIONS_DIR = f"{DAILY_OUTPUT_DIR}/predictions"
 DAILY_BACKTESTS_DIR = f"{DAILY_OUTPUT_DIR}/backtests"
@@ -16,7 +18,7 @@ DAILY_BACKTEST_OUTPUT = f"{DAILY_BACKTESTS_DIR}/{datetime.now().date()}.csv"
 DAILY_PROCESSED_PATH = "data/processed_data.csv"
 
 # === Weekly Paths ===
-WEEKLY_MODEL_PATH = "models/weekly_random_forest.pkl"
+WEEKLY_MODEL_PATH = f"{MODEL_DIR}/weekly_random_forest.pkl"
 WEEKLY_OUTPUT_DIR = "outputs/weekly"
 WEEKLY_PREDICTIONS_DIR = f"{WEEKLY_OUTPUT_DIR}/predictions"
 WEEKLY_BACKTESTS_DIR = f"{WEEKLY_OUTPUT_DIR}/backtests"

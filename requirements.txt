@@ -7,3 +7,4 @@ xgboost        # If you want to experiment with XGBoost later
 plotly
 requests
 beautifulsoup4
+lightgbm
