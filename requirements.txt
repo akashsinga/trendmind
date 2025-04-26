@@ -8,3 +8,9 @@ plotly
 requests
 beautifulsoup4
 lightgbm
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+python-dotenv
+alembic
